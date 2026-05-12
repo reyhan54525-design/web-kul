@@ -1,52 +1,590 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculator</title>
 
-  <title>Kareo Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="style.css">
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+}
+
+body{
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:
+    radial-gradient(circle at top left,#2563eb,#020617 45%),
+    radial-gradient(circle at bottom right,#7c3aed,#020617 45%);
+    overflow:hidden;
+    padding:20px;
+}
+
+body::before{
+    content:'';
+    position:absolute;
+    width:450px;
+    height:450px;
+    background:#3b82f6;
+    filter:blur(150px);
+    opacity:.25;
+    top:-150px;
+    left:-150px;
+}
+
+body::after{
+    content:'';
+    position:absolute;
+    width:400px;
+    height:400px;
+    background:#8b5cf6;
+    filter:blur(150px);
+    opacity:.25;
+    bottom:-120px;
+    right:-120px;
+}
+
+.calculator{
+    width:410px;
+    padding:24px;
+    border-radius:35px;
+    background:rgba(255,255,255,.08);
+    backdrop-filter:blur(30px);
+    border:1px solid rgba(255,255,255,.08);
+    box-shadow:
+    0 20px 50px rgba(0,0,0,.55),
+    inset 0 1px 1px rgba(255,255,255,.1);
+    position:relative;
+    overflow:hidden;
+}
+
+.top-bar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+}
+
+.logo{
+    color:white;
+    font-size:20px;
+    font-weight:600;
+    letter-spacing:1px;
+}
+
+.mode{
+    width:42px;
+    height:42px;
+    border-radius:50%;
+    background:rgba(255,255,255,.08);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:white;
+    font-size:18px;
+}
+
+.screen{
+    background:rgba(255,255,255,.05);
+    border-radius:28px;
+    padding:20px;
+    margin-bottom:20px;
+}
+
+.preview{
+    min-height:25px;
+    color:#94a3b8;
+    text-align:right;
+    font-size:16px;
+    overflow-x:auto;
+}
+
+.display{
+    width:100%;
+    background:transparent;
+    border:none;
+    outline:none;
+    color:white;
+    text-align:right;
+    font-size:52px;
+    font-weight:700;
+    margin-top:5px;
+}
+
+.buttons{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:14px;
+}
+
+button{
+    height:74px;
+    border:none;
+    border-radius:24px;
+    cursor:pointer;
+    color:white;
+    font-size:24px;
+    font-weight:600;
+    position:relative;
+    overflow:hidden;
+    transition:.2s;
+}
+
+button:hover{
+    transform:translateY(-4px) scale(1.03);
+}
+
+button:active{
+    transform:scale(.95);
+}
+
+.number{
+    background:rgba(255,255,255,.07);
+    backdrop-filter:blur(10px);
+}
+
+.operator{
+    background:linear-gradient(135deg,#f59e0b,#fb923c);
+}
+
+.equal{
+    background:linear-gradient(135deg,#10b981,#34d399);
+}
+
+.clear{
+    background:linear-gradient(135deg,#ef4444,#f87171);
+}
+
+.special{
+    background:linear-gradient(135deg,#6366f1,#8b5cf6);
+}
+
+.history{
+    margin-top:22px;
+    background:rgba(255,255,255,.05);
+    border-radius:24px;
+    padding:16px;
+    max-height:180px;
+    overflow-y:auto;
+}
+
+.history h3{
+    color:white;
+    margin-bottom:10px;
+    font-weight:500;
+}
+
+.history-item{
+    padding:10px 0;
+    color:#d1d5db;
+    border-bottom:1px solid rgba(255,255,255,.05);
+}
+
+.history-item b{
+    color:white;
+}
+
+</style>
 </head>
 <body>
 
-  <div class="calculator">
+<div class="calculator">
 
-    <h1>Kareo</h1>
+    <div class="top-bar">
+        <div class="logo">CALCULATOR</div>
+        <div class="mode">🧮</div>
+    </div>
 
-    <input type="text" id="display" value="0" readonly>
+    <div class="screen">
+        <div class="preview" id="preview"></div>
+        <input type="text" id="display" class="display" value="0" readonly>
+    </div>
 
     <div class="buttons">
 
-      <button class="red" onclick="clearDisplay()">C</button>
-      <button onclick="appendValue('/')">÷</button>
-      <button onclick="appendValue('*')">×</button>
-      <button class="black" onclick="appendValue('-')">−</button>
+        <button class="clear" onclick="clearDisplay()">AC</button>
+        <button class="special" onclick="toggleSign()">±</button>
+        <button class="special" onclick="percent()">%</button>
+        <button class="operator" onclick="appendValue('/')">÷</button>
 
-      <button onclick="appendValue('7')">7</button>
-      <button onclick="appendValue('8')">8</button>
-      <button onclick="appendValue('9')">9</button>
-      <button class="black" onclick="appendValue('+')">+</button>
+        <button class="number" onclick="appendValue('7')">7</button>
+        <button class="number" onclick="appendValue('8')">8</button>
+        <button class="number" onclick="appendValue('9')">9</button>
+        <button class="operator" onclick="appendValue('*')">×</button>
 
-      <button onclick="appendValue('4')">4</button>
-      <button onclick="appendValue('5')">5</button>
-      <button onclick="appendValue('6')">6</button>
-      <button class="equal" onclick="calculate()">=</button>
+        <button class="number" onclick="appendValue('4')">4</button>
+        <button class="number" onclick="appendValue('5')">5</button>
+        <button class="number" onclick="appendValue('6')">6</button>
+        <button class="operator" onclick="appendValue('-')">−</button>
 
-      <button onclick="appendValue('1')">1</button>
-      <button onclick="appendValue('2')">2</button>
-      <button onclick="appendValue('3')">3</button>
+        <button class="number" onclick="appendValue('1')">1</button>
+        <button class="number" onclick="appendValue('2')">2</button>
+        <button class="number" onclick="appendValue('3')">3</button>
+        <button class="operator" onclick="appendValue('+')">+</button>
 
-      <button class="zero" onclick="appendValue('0')">0</button>
-      <button onclick="appendValue('.')">.</button>
-      <button onclick="appendValue('%')">%</button>
-
+        <button class="number" onclick="appendValue('0')">0</button>
+        <button class="number" onclick="appendDecimal()">.</button>
+        <button class="special" onclick="deleteLast()">⌫</button>
+        <button class="equal" onclick="calculate()">=</button>
 
     </div>
 
-  </div>
+    <div class="history">
+        <h3>History</h3>
+        <div id="historyList"></div>
+    </div>
 
-  <script src="script.js"></script>
+</div>
+
+<script>
+
+const display = document.getElementById("display");
+const preview = document.getElementById("preview");
+const historyList = document.getElementById("historyList");
+
+/* =========================
+   CLEAN NUMBER
+========================= */
+
+function cleanNumber(num){
+
+    return parseFloat(
+        Number(num).toFixed(12)
+    );
+}
+
+/* =========================
+   APPEND VALUE
+========================= */
+
+function appendValue(value){
+
+    if(display.value === "0" || display.value === "Error"){
+
+        display.value = value;
+
+    }else{
+
+        display.value += value;
+    }
+
+    updatePreview();
+}
+
+/* =========================
+   DECIMAL
+========================= */
+
+function appendDecimal(){
+
+    let parts =
+    display.value.split(/[\+\-\*\/]/);
+
+    let current =
+    parts[parts.length - 1];
+
+    if(!current.includes(".")){
+
+        display.value += ".";
+    }
+}
+
+/* =========================
+   CLEAR
+========================= */
+
+function clearDisplay(){
+
+    display.value = "0";
+    preview.innerHTML = "";
+}
+
+/* =========================
+   DELETE
+========================= */
+
+function deleteLast(){
+
+    if(display.value.length <= 1){
+
+        display.value = "0";
+
+    }else{
+
+        display.value =
+        display.value.slice(0,-1);
+    }
+
+    updatePreview();
+}
+
+/* =========================
+   TOGGLE SIGN
+========================= */
+
+function toggleSign(){
+
+    try{
+
+        let value = eval(
+            display.value.replace(/%/g,"/100")
+        );
+
+        display.value =
+        cleanNumber(value * -1);
+
+    }catch{
+
+        display.value = "Error";
+    }
+}
+
+/* =========================
+   PERCENT
+========================= */
+
+function percent(){
+
+    if(display.value === "Error"){
+
+        display.value = "0";
+    }
+
+    if(display.value.endsWith("%")){
+
+        return;
+    }
+
+    display.value += "%";
+
+    updatePreview();
+}
+
+/* =========================
+   CALCULATE
+========================= */
+
+function calculate(){
+
+    try{
+
+        let exp = display.value;
+
+        // MODE PERSEN KHUSUS
+        let match = exp.match(
+        /^(\d+(\.\d+)?)%([\+\-\*\/])(\d+(\.\d+)?)%$/
+        );
+
+        if(match){
+
+            let first =
+            parseFloat(match[1]) / 100;
+
+            let operator =
+            match[3];
+
+            let second =
+            parseFloat(match[4]) / 100;
+
+            let result;
+
+            switch(operator){
+
+                case '+':
+
+                    result =
+                    first +
+                    (first * second);
+
+                    break;
+
+                case '-':
+
+                    result =
+                    first -
+                    (first * second);
+
+                    break;
+
+                case '*':
+
+                    result =
+                    first * second;
+
+                    break;
+
+                case '/':
+
+                    result =
+                    first / second;
+
+                    break;
+            }
+
+            result =
+            cleanNumber(result);
+
+            preview.innerHTML =
+            exp + " =";
+
+            display.value =
+            result;
+
+            addHistory(
+            exp + " =",
+            result
+            );
+
+            return;
+        }
+
+        // PERSEN NORMAL
+        exp = exp.replace(
+        /(\d+(\.\d+)?)%/g,
+        '($1/100)'
+        );
+
+        let result = eval(exp);
+
+        if(!isFinite(result)){
+
+            display.value = "Error";
+            return;
+        }
+
+        result =
+        cleanNumber(result);
+
+        preview.innerHTML =
+        display.value + " =";
+
+        display.value =
+        result;
+
+        addHistory(
+        preview.innerHTML,
+        result
+        );
+
+    }catch{
+
+        display.value = "Error";
+    }
+}
+
+/* =========================
+   PREVIEW
+========================= */
+
+function updatePreview(){
+
+    try{
+
+        let expression =
+        display.value.replace(
+        /(\d+(\.\d+)?)%/g,
+        '($1/100)'
+        );
+
+        if(/[+\-*/]/.test(expression)){
+
+            let result =
+            eval(expression);
+
+            if(isFinite(result)){
+
+                preview.innerHTML =
+                display.value +
+                " = " +
+                cleanNumber(result);
+            }
+
+        }else{
+
+            preview.innerHTML = "";
+        }
+
+    }catch{
+
+        preview.innerHTML = "";
+    }
+}
+
+/* =========================
+   HISTORY
+========================= */
+
+function addHistory(exp,result){
+
+    let item =
+    document.createElement("div");
+
+    item.classList.add(
+        "history-item"
+    );
+
+    item.innerHTML =
+    `${exp} <b>${result}</b>`;
+
+    historyList.prepend(item);
+}
+
+/* =========================
+   KEYBOARD
+========================= */
+
+document.addEventListener(
+"keydown",
+function(e){
+
+    let key = e.key;
+
+    if(
+        !isNaN(key) ||
+        ['+','-','*','/']
+        .includes(key)
+    ){
+
+        appendValue(key);
+    }
+
+    else if(key === '.'){
+
+        appendDecimal();
+    }
+
+    else if(key === '%'){
+
+        percent();
+    }
+
+    else if(key === 'Enter'){
+
+        calculate();
+    }
+
+    else if(key === 'Backspace'){
+
+        deleteLast();
+    }
+
+    else if(
+        key.toLowerCase() === 'c'
+    ){
+
+        clearDisplay();
+    }
+});
+
+</script>
 
 </body>
 </html>
